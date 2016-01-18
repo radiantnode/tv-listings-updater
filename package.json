@@ -1,0 +1,27 @@
+{
+  "name": "tv-schedule-updater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radiantnode/tv-listings-updater.git"
+  },
+  "keywords": [
+    "alexa", "rovi", "lambda", "aws"
+  ],
+  "author": "Michael Simmons",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/radiantnode/tv-listings-updater/issues"
+  },
+  "homepage": "https://github.com/radiantnode/tv-listings-updater#readme",
+  "dependencies": {
+    "aws-sdk": "^2.2.30",
+    "lodash": "^4.0.0",
+    "request": "^2.67.0"
+  }
+}

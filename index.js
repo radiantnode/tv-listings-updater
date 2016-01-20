@@ -3,12 +3,13 @@
 var _ = require('lodash');
 var config = require('./config');
 var request = require('request');
-var AWS = require('aws-sdk');
-AWS.config = new AWS.Config(config.aws);
-var s3 = new AWS.S3();
+var mysql = require('mysql');
+var moment = require('moment');
 
 exports.handler = function (event, context)
 {
+  var connection = mysql.createConnection(config.database);
+
   request({
     url: config.rovi.url,
     json: true,
@@ -25,33 +26,50 @@ exports.handler = function (event, context)
     if(!error) {
       if(data && data.LinearScheduleResult && data.LinearScheduleResult.Schedule) {
         var airings = data.LinearScheduleResult.Schedule.Airings,
-            results = [];
+            values = [];
 
-        // sanitize our results
-        results = _.map(airings, function(item){
-          // remove extra keys
-          _.each(config.ignoredKeys, function(key){ delete item[key] });
-          // force channel number to an int
-          item['Channel'] = _.parseInt(item['Channel'], 10);
-          return item;
+        _.each(airings, function(item){
+          // if(item.ParentNetworkId) return;
+
+          values.push([
+            item.Title,
+            item.EpisodeTitle,
+            item.Copy,
+            moment(item.AiringTime).utc().format('YYYY-MM-DD HH:mm:ss'),
+            item.Duration,
+            _.parseInt(item.Channel, 10),
+            item.CallLetters
+          ]);
         });
 
-        results = JSON.stringify(results);
+        // check for values
+        if(!values.length > 0) return context.fail('Received 0 results from API.');
+
+        // connect
+        connection.connect();
+
+        // first delete our old entries
+        connection.query('DELETE FROM entries', function(err){
+          if(!err) {
+            // bulk insert our entries
+            connection.query('INSERT INTO entries (Title, EpisodeTitle, Description, AiringTime, Duration, ChannelNumber, ChannelCallsign) VALUES ?', [values], function(err, results){
+              if(!err) {
+                context.succeed('Successfully inserted ' + results.affectedRows + ' entries with ' + results.warningCount + ' warnings.');
+              } else {
+                context.fail("Couldn't insert entries", err);
+              }
+
+              // disconnect
+              connection.end();
+            });
+
+          } else {
+            context.fail("Couldn't clear out old entries", err);
+          }
+
+        });
+
       }
-
-      s3.putObject({
-        Bucket: config.aws.bucket,
-        Key: config.objectName,
-        ACL: 'public-read',
-        Body: results
-      }, function(error, data) {
-        if(!error) {
-          context.succeed('Successfully saved TV listings!');
-        } else {
-          context.fail('Error saving TV listings: ' + error);
-        }
-
-      });
 
     } else {
       context.fail('Error retrieving TV listings: ' + error);

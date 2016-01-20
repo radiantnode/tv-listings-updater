@@ -1,20 +1,17 @@
 var config = {};
 
-config.aws = {
-  accessKeyId:     'XXXXXXXXXXXXXXXXXXXX',
-  secretAccessKey: 'XXXXXXXXXXXXXXXXXXXX',
-  region:          'us-west-1',
-  bucket:          'mybucket'
+config.database = {
+  host: 'tv-listings.XXXXXXXXXXXXXXXX.us-east-1.rds.amazonaws.com',
+  port: '3306',
+  user: 'XXXXXXXXXXXXXXXX',
+  password: 'XXXXXXXXXXXXXXXX',
+  database: 'listings',
+  timezone: 'utc'
 }
-
-config.objectName = 'tv_listings.json';
 
 config.rovi = {
   url: 'http://api.rovicorp.com/TVlistings/v9/listings/linearschedule/63892/info',
-  key: 'XXXXXXXXXXXXXXXXXXXX'
+  key: 'XXXXXXXXXXXXXXXX'
 }
-
-// ignore some data that comes back from rovi to make our files as small as possible
-config.ignoredKeys = ['Color', 'Subtitles', 'DvbTriplet', 'Subcategory', 'TiVoSupported', 'Category', 'DVS', 'ProgramId', 'UnknownInstance', 'IconAvailable', 'AiringType', 'LetterBox', 'CC', 'SourceDisplayName', 'TVRating', 'DSS', 'Dolby', 'HD', 'SAP', 'HDLevel', 'Sports', 'ParentNetworkId', 'SL', 'ShowingType', 'Stereo', 'ShowingType', 'InstanceId', 'ServiceId', 'UPId', 'SourceId', 'SourceLongName', 'SeriesId'];
 
 module.exports = config;

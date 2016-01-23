@@ -4,12 +4,11 @@ var _ = require('lodash');
 var config = require('./config');
 var request = require('request');
 var mysql = require('mysql');
+var connection = mysql.createConnection(config.database);
 var moment = require('moment');
 
 exports.handler = function (event, context)
 {
-  var connection = mysql.createConnection(config.database);
-
   request({
     url: config.rovi.url,
     json: true,
@@ -45,9 +44,6 @@ exports.handler = function (event, context)
         // check for values
         if(!values.length > 0) return context.fail('Received 0 results from API.');
 
-        // connect
-        connection.connect();
-
         // first delete our old entries
         connection.query('DELETE FROM entries', function(err){
           if(!err) {
@@ -59,8 +55,6 @@ exports.handler = function (event, context)
                 context.fail("Couldn't insert entries", err);
               }
 
-              // disconnect
-              connection.end();
             });
 
           } else {
@@ -84,3 +78,4 @@ exports.handler = function (event, context)
 //   succeed: function (data) { console.log('SUCCEED: ' + data )},
 //   fail: function (data) { console.log('FAIL: ' + data )}
 // });
+// connection.end();

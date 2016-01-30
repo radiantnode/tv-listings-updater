@@ -51,6 +51,7 @@ var updater = function (event, context)
             connection.query('INSERT INTO entries (Title, EpisodeTitle, Description, AiringTime, Duration, ChannelNumber, ChannelCallsign) VALUES ?', [values], function(err, results){
               if(!err) {
                 console.log('Successfully inserted ' + results.affectedRows + ' entries with ' + results.warningCount + ' warnings.');
+                connection.end();
               } else {
                 console.error("Couldn't insert entries", err);
               }

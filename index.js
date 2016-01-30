@@ -7,7 +7,7 @@ var mysql = require('mysql');
 var connection = mysql.createConnection(config.database);
 var moment = require('moment');
 
-exports.handler = function (event, context)
+var updater = function (event, context)
 {
   request({
     url: config.rovi.url,
@@ -50,15 +50,15 @@ exports.handler = function (event, context)
             // bulk insert our entries
             connection.query('INSERT INTO entries (Title, EpisodeTitle, Description, AiringTime, Duration, ChannelNumber, ChannelCallsign) VALUES ?', [values], function(err, results){
               if(!err) {
-                context.succeed('Successfully inserted ' + results.affectedRows + ' entries with ' + results.warningCount + ' warnings.');
+                console.log('Successfully inserted ' + results.affectedRows + ' entries with ' + results.warningCount + ' warnings.');
               } else {
-                context.fail("Couldn't insert entries", err);
+                console.error("Couldn't insert entries", err);
               }
 
             });
 
           } else {
-            context.fail("Couldn't clear out old entries", err);
+            console.error("Couldn't clear out old entries", err);
           }
 
         });
@@ -66,16 +66,11 @@ exports.handler = function (event, context)
       }
 
     } else {
-      context.fail('Error retrieving TV listings: ' + error);
+      console.error('Error retrieving TV listings: ' + error);
     }
 
   });
 
 }
 
-// TEST STUBBING:
-// exports.handler(null, {
-//   succeed: function (data) { console.log('SUCCEED: ' + data )},
-//   fail: function (data) { console.log('FAIL: ' + data )}
-// });
-// connection.end();
+updater();
